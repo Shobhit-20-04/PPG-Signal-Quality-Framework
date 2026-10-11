@@ -1,14 +1,40 @@
 """
 Machine learning classification module for PPG Signal Quality Assessment.
-Includes Support Vector Machine (RBF kernel) and Decision Tree classifiers.
+Includes Random Forest, Support Vector Machine (RBF kernel), and Decision Tree classifiers.
 """
 
 from typing import Dict, Any, Tuple
 import numpy as np
 from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GroupKFold, GridSearchCV
 from sklearn.metrics import classification_report, accuracy_score, f1_score
+
+
+def train_random_forest_classifier(
+    X_train_scaled: np.ndarray,
+    y_train: np.ndarray,
+    n_estimators: int = 100,
+    max_depth: int = 12,
+    random_state: int = 42
+) -> RandomForestClassifier:
+    """
+    Trains a Random Forest ensemble classifier.
+    Minimizes variance and overfitting while providing superior out-of-fold generalization.
+    """
+    rf = RandomForestClassifier(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        min_samples_split=4,
+        min_samples_leaf=2,
+        class_weight='balanced',
+        random_state=random_state,
+        n_jobs=-1
+    )
+    rf.fit(X_train_scaled, y_train)
+    return rf
 
 
 def train_svm_classifier(
@@ -25,12 +51,12 @@ def train_svm_classifier(
     """
     if param_grid is None:
         param_grid = {
-            'C': [1, 10, 50],
+            'C': [1, 5, 10],
             'gamma': ['scale', 0.05, 0.1]
         }
 
     cv = GroupKFold(n_splits=n_splits)
-    base_svm = SVC(kernel='rbf', random_state=random_state)
+    base_svm = SVC(kernel='rbf', probability=True, class_weight='balanced', random_state=random_state)
     grid = GridSearchCV(base_svm, param_grid, cv=cv, scoring='f1_macro', n_jobs=-1)
     grid.fit(X_train_scaled, y_train, groups=groups_train)
 
@@ -49,7 +75,13 @@ def train_decision_tree_classifier(
     random_state: int = 42
 ) -> DecisionTreeClassifier:
     """Trains an interpretable Decision Tree classifier for feature importance analysis."""
-    dt = DecisionTreeClassifier(max_depth=max_depth, random_state=random_state)
+    dt = DecisionTreeClassifier(
+        max_depth=max_depth,
+        min_samples_split=5,
+        min_samples_leaf=2,
+        class_weight='balanced',
+        random_state=random_state
+    )
     dt.fit(X_train_scaled, y_train)
     return dt
 

@@ -17,7 +17,7 @@ import pandas as pd
 import src
 from src.features import extract_sqi_features, FEATURE_NAMES
 from src.noise_injection import INJECTORS, inject_clean_jitter
-from src.restoration import clean_ppg, minimal_reference
+from src.restoration import clean_ppg, minimal_reference, normalize_waveform_display
 from src.evaluation import evaluate_signal_pair
 
 
@@ -70,11 +70,11 @@ def run_demo():
 
     test_cases = {
         "Clean": inject_clean_jitter(clean_base, rng=rng),
-        "Motion_Artifact": INJECTORS["Motion_Artifact"](clean_base, severity=1.0, rng=rng),
         "Baseline_Wander": INJECTORS["Baseline_Wander"](clean_base, severity=1.0, rng=rng),
-        "Ambient_Light": INJECTORS["Ambient_Light"](clean_base, severity=1.0, rng=rng),
+        "Motion_Artifact": INJECTORS["Motion_Artifact"](clean_base, severity=1.0, rng=rng),
         "Muscle_Noise": INJECTORS["Muscle_Noise"](clean_base, severity=1.0, rng=rng),
         "Powerline_Interference": INJECTORS["Powerline_Interference"](clean_base, severity=1.0, rng=rng),
+        "Ambient_Light": INJECTORS["Ambient_Light"](clean_base, severity=1.0, rng=rng),
     }
 
     results = []
@@ -91,6 +91,7 @@ def run_demo():
         # Quantitative evaluation against minimal baseline reference
         metrics = evaluate_signal_pair(ref_signal, corrupted, restored)
 
+        delta_snr = metrics['snr_after'] - metrics['snr_before']
         results.append({
             "Artifact": label,
             "Corr Before": f"{metrics['corr_before']:.3f}",
@@ -99,7 +100,7 @@ def run_demo():
             "RMSE After": f"{metrics['rmse_after']:.3f}",
             "SNR Before (dB)": f"{metrics['snr_before']:.2f}",
             "SNR After (dB)": f"{metrics['snr_after']:.2f}",
-            "Delta SNR (dB)": f"{(metrics['snr_after'] - metrics['snr_before']):+.2f}",
+            "Delta SNR (dB)": f"{delta_snr:+.2f}",
         })
 
         print(f"--> {label}:")
@@ -109,11 +110,11 @@ def run_demo():
 
     summary_df = pd.DataFrame(results)
     print("=" * 80)
-    print("SUMMARY PERFORMANCE TABLE")
+    print("SUMMARY PERFORMANCE TABLE (All Artifact Classes)")
     print("=" * 80)
     print(summary_df.to_string(index=False))
     print("=" * 80)
-    print("Demo completed successfully!")
+    print("Demo completed successfully! Waveforms restored with targeted filtering.")
 
 
 if __name__ == "__main__":

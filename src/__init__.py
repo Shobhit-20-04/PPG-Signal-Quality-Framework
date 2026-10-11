@@ -25,12 +25,19 @@ from .restoration import (
     clean_ppg,
     minimal_reference,
     matched_reference,
+    normalize_waveform_display,
     highpass_filter,
     lowpass_filter,
     notch_filter,
     wavelet_denoise
 )
 from .evaluation import corr, rmse, snr_db, evaluate_signal_pair
+from .models import (
+    train_svm_classifier,
+    train_random_forest_classifier,
+    train_decision_tree_classifier,
+    evaluate_model
+)
 
 __all__ = [
     "extract_sqi_features",
@@ -46,11 +53,17 @@ __all__ = [
     "clean_ppg",
     "minimal_reference",
     "matched_reference",
+    "normalize_waveform_display",
     "highpass_filter",
     "lowpass_filter",
     "notch_filter",
     "wavelet_denoise",
     "corr",
     "rmse",
-    "snr_db"
+    "snr_db",
+    "evaluate_signal_pair",
+    "train_svm_classifier",
+    "train_random_forest_classifier",
+    "train_decision_tree_classifier",
+    "evaluate_model"
 ]
