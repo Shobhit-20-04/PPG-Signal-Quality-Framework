@@ -247,6 +247,8 @@ PPG-Signal-Quality-Framework/
 │   ├── loaders.py                        # Multi-source dataset loaders & group splitters
 │   └── models.py                         # SVM RBF and Decision Tree training pipelines
 │
+├── app.py                                # Interactive Streamlit Clinical Web Studio
+├── index.html                            # Standalone Zero-Dependency Browser Dashboard
 ├── demo.py                               # Standalone CLI demo runner
 ├── PPG_Signal_Quality_Framework_FINAL_patched.ipynb  # End-to-end interactive experimental notebook
 ├── PPG_Dataset.csv                       # Benchmark PPG dataset (2,576 records @ 125 Hz)
@@ -279,7 +281,26 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Run the Standalone CLI Demo
+### 3. Launch the Interactive Frontends
+
+#### Option A: Streamlit Clinical Telemetry Studio (Recommended)
+Launch the full interactive web application with real-time waveform telemetry, ML diagnosis, and metric cards:
+```bash
+streamlit run app.py
+```
+
+#### Option B: Standalone Zero-Dependency Browser Dashboard
+Open `index.html` directly in any modern browser (Chrome, Edge, Firefox, Safari) without requiring any Python or backend server:
+```bash
+# On Windows:
+start index.html
+# On macOS:
+open index.html
+# On Linux:
+xdg-open index.html
+```
+
+### 4. Run the Standalone CLI Demo
 Run the end-to-end pipeline on sample signals in one command:
 ```bash
 python demo.py
@@ -291,17 +312,22 @@ PPG Signal Quality Assessment and Artifact Removal Framework - Demo
 ================================================================================
 Loaded 2000-sample signal from 'PPG_Dataset.csv'.
 
+--> Clean:
+    Restoration : SNR 5.39 dB -> 38.29 dB (Pearson r: 0.888 -> 1.000)
 --> Baseline_Wander:
-    SQI Features: {'Kurtosis': -0.941, 'Skewness': 0.009, 'AmplitudeEntropy': 4.696, ...}
-    Restoration : SNR -2.27 dB -> 4.75 dB (Pearson r: 0.612 -> 0.823)
-
+    Restoration : SNR -3.86 dB -> 4.85 dB (Pearson r: 0.554 -> 0.823)
+--> Motion_Artifact:
+    Restoration : SNR 2.34 dB -> 9.02 dB (Pearson r: 0.802 -> 0.936)
+--> Muscle_Noise:
+    Restoration : SNR 3.71 dB -> 12.03 dB (Pearson r: 0.852 -> 0.968)
+--> Powerline_Interference:
+    Restoration : SNR 4.66 dB -> 26.82 dB (Pearson r: 0.872 -> 0.999)
 --> Ambient_Light:
-    SQI Features: {'Kurtosis': -0.708, 'Skewness': -0.108, 'AmplitudeEntropy': 4.551, ...}
-    Restoration : SNR -11.08 dB -> 8.22 dB (Pearson r: 0.460 -> 0.922)
+    Restoration : SNR -0.82 dB -> 10.68 dB (Pearson r: 0.828 -> 0.959)
 ================================================================================
 ```
 
-### 4. Run the Full Interactive Notebook
+### 5. Run the Full Interactive Notebook
 ```bash
 jupyter notebook PPG_Signal_Quality_Framework_FINAL_patched.ipynb
 ```
